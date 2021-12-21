@@ -1,5 +1,8 @@
+import scala.annotation.tailrec
+
 object main {
     def fib(n: Int): Int = {
+        @tailrec
         def go(prev: Int, cur: Int, n: Int): Int = 
             if (n <= 0) prev
             else go(cur, prev + cur, n - 1)
