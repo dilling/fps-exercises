@@ -10,3 +10,6 @@ val add = (a: Int, b: Int) => a + b
 val addCurry = curry(add)
 
 addCurry(1)(2)
+
+val addOne = addCurry(1)
+addOne(2)
