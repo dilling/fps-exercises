@@ -11,7 +11,7 @@ object List {
             case Cons(x, xs) => foldLeft(xs, f(z, x))(f)
         }
     
-   def foldRight[A,B](as: List[A], z: B)(f: (B, A) => B): B = 
+    def foldRight[A,B](as: List[A], z: B)(f: (B, A) => B): B = 
         foldLeft(foldLeft(as, Nil: List[A])((x, y) => Cons(y,x)), z)(f)
 
     def append[A](a1: List[A], a2: List[A]): List[A] =
