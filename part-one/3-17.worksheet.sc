@@ -14,14 +14,14 @@ object List {
     def foldRight[A,B](as: List[A], z: B)(f: (B, A) => B): B = 
         foldLeft(foldLeft(as, Nil: List[A])((x, y) => Cons(y,x)), z)(f)
 
-    def increment(as: List[Int]): List[Int] = 
-        foldRight(as, Nil: List[Int])((z, x) => Cons(x + 1, z))
+    def toString(as: List[Double]): List[String] = 
+        foldRight(as, Nil: List[String])((z, x) => Cons(x.toString(), z))
     
     def apply[A](as :A*): List[A] =
         if(as.isEmpty) Nil
         else Cons(as.head, apply(as.tail: _*))
 }
 
-val x = List(1,2,3)
-List.increment(x)
+val x = List(1.0, 2.0, 3.0)
+List.toString(x)
 
