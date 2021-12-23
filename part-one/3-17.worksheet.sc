@@ -11,8 +11,11 @@ object List {
             case Cons(x, xs) => foldLeft(xs, f(z, x))(f)
         }
     
+    def reverse[A](ns: List[A]): List[A] = 
+        foldLeft(ns, Nil: List[A])((x, y) => Cons(y,x))
+    
     def foldRight[A,B](as: List[A], z: B)(f: (B, A) => B): B = 
-        foldLeft(foldLeft(as, Nil: List[A])((x, y) => Cons(y,x)), z)(f)
+        foldLeft(reverse(as), z)(f)
 
     def toString(as: List[Double]): List[String] = 
         foldRight(as, Nil: List[String])((z, x) => Cons(x.toString(), z))
