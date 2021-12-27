@@ -33,4 +33,20 @@ sealed trait Option[+A] {
 case class Some[+A](get: A) extends Option[A] 
 case object None extends Option[Nothing]
 
+val x: Option[Int] = Some(1)
+val y: Option[Int] = None
 
+x.map(_ * 2)
+y.map(_ * 2)
+
+x.flatMap(x => Some(x * 3))
+y.flatMap(x => Some(x * 3))
+
+x.getOrElse(2)
+y.getOrElse(2)
+
+x.orElse(Some(3))
+y.orElse(Some(3))
+
+x.filter(_ > 3)
+y.filter(_ > 3)
