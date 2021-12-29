@@ -11,8 +11,18 @@ sealed trait Stream[+A] {
             case _ => z 
         }
 
-    def headOption(): Option[A] =
-        this.foldRight(None: Option[A])((a, _) => Some(a))
+    def map[B](f: A => B): Stream[B] =
+        this.foldRight(Empty: Stream[B])((a, b) => Cons(() => f(a), () => b))
+    
+    def filter(f: A => Boolean): Stream[A]=
+        this.foldRight(Empty: Stream[A])((a, b) => if (f(a)) Cons(() => a, () => b) else b)
+
+    
+    def append[AA >: A](x: => Stream[AA]): Stream[AA] = 
+        this.foldRight(x)((a, b) => Cons(() => a, () => b))
+
+    def flatMap[B](f: A => Stream[B]): Stream[B] = 
+        foldRight(Empty: Stream[B])((a, b) => f(a).append(b))
 
 }
 case object Empty extends Stream[Nothing]
@@ -33,5 +43,8 @@ object Stream {
 }
 
 val x = Stream(1, 2, 3, 4, 5)
-x.headOption()
-Stream().headOption()
+x.map("Its a %d!".format(_)).toList
+x.filter(_ % 2 == 0).toList
+x.append(Stream(6, 7, 8)).toList
+x.flatMap(x => Stream(x, x)).toList
+
