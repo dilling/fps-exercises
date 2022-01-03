@@ -5,6 +5,25 @@ sealed trait Stream[+A] {
             case Cons(h, t) => h() :: t().toList
         }
 
+    def foldRight[B](z: => B)(f: (A, => B) => B): B = 
+        this match {
+            case Cons(h, t) => f(h(), t().foldRight(z)(f))
+            case _ => z 
+        }
+
+    def map[B](f: A => B): Stream[B] = 
+        Stream.unfold(this)(_ match {
+            case Cons(h, t) => Some(f(h()), t())
+            case _ => None
+        })
+        
+
+    def tails: Stream[Stream[A]] = 
+        this match {
+            case Cons(h, t) => Stream.cons(this, t().tails)
+            case _ => Empty
+        }
+
     def zipAll[B](a2: Stream[B]): Stream[(Option[A], Option[B])] =
         Stream.unfold((this, a2))(_ match {
             case (Cons(x, xs), Cons(y, ys)) => Some(((Some(x()), Some(y())), (xs(), ys())))
@@ -13,15 +32,15 @@ sealed trait Stream[+A] {
             case _ => None
         })
 
-    def foldRight[B](z: => B)(f: (A, => B) => B): B = 
-        this match {
-            case Cons(h, t) => f(h(), t().foldRight(z)(f))
-            case _ => z 
-        }
-
     def startsWith[A](s: Stream[A]): Boolean =
         zipAll(s).foldRight(true)((a, b) => a._2 == None || a._1 == a._2 && b)
-        
+
+
+    def exists(f: A => Boolean): Boolean =
+        foldRight(false)((a, b) => f(a) || b)
+
+    def hasSubsequence[A](s: Stream[A]): Boolean =
+        tails exists (_ startsWith s)
 }
 case object Empty extends Stream[Nothing]
 case class Cons[+A](h: () => A, t: () => Stream[A]) extends Stream[A]
@@ -48,11 +67,9 @@ object Stream {
 }
 
 val x = Stream(1, 2, 3, 4, 5)
-x.startsWith(Stream(1, 2))
-x.startsWith(Stream(2, 3))
-x.startsWith(Stream(2, 1))
-x.startsWith(Empty)
-x.startsWith(Stream(5, 6))
-Stream(5).startsWith(Stream(5,6))
+x.tails.map(a => a.foldRight(0)(_ + _)).toList
 
-Stream(5) == Empty
+x.hasSubsequence(Stream(2, 3))
+x.hasSubsequence(Stream(5, 6))
+x.hasSubsequence(Empty)
+
