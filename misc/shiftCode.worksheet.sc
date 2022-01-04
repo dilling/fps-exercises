@@ -1,5 +1,4 @@
-import scala.annotation.tailrec
-
+// TODO : Make tail Recursive
 sealed trait ShiftCode
 
 object ShiftCode {
@@ -13,14 +12,14 @@ object ShiftCode {
     }
 
     def applyCode(code: String)(op: (Int, Int) => Int)(message: String) = {
-        @tailrec
-        def go(a1: List[Char], a2: LazyList[Int], z: List[Char]): List[Char] =  
+        def go(a1: List[Char], a2: LazyList[Int]): List[Char] =
             (a1, a2) match {
-                case (h :: t, keyList) if (h < aIdx || h > zIdx) => go(t, keyList, h :: z)
-                case (h :: t, key #:: next) => go(t, next, op(h.toInt, key).toChar :: z)
-                case _ => z
+                case (c :: t, keyList) if (c < aIdx || c > zIdx) => c :: go(t, keyList)
+                case (char :: t, key #:: next) => op(char.toInt, key).toChar :: go(t, next)
+                case _ => Nil
             }
-        go(message.toUpperCase.toList.reverse, key(code), Nil).mkString
+
+        go(message.toUpperCase.toList, key(code)).mkString
     }
 
     def decode(code: String)(message: String): String = {
@@ -40,11 +39,11 @@ object ShiftCode {
     }
 }
 
-val code = "123"
+val code = "1234"
 val encode = ShiftCode.encode(code)
 val decode = ShiftCode.decode(code)
 
-val message = "this is a test message. zzz!!"
+val message = "this is a test zz"
 val encodedMessage = encode(message)
 decode(encodedMessage)
 
