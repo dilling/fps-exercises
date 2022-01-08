@@ -33,8 +33,29 @@ object State {
             }))
 }
 
-type Inc = State[Int, Int]
-val i: Inc = State(s => (s, s+1))
-i.run(0)
-i.get.run(0)
-i.set(3).run(0)
+sealed trait Input 
+case object Coin extends Input
+case object Turn extends Input
+case class Machine(locked: Boolean, candies: Int, coins: Int) {
+    def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] = {
+        val machine = inputs.foldLeft(this)((m, input) => 
+            input match {
+                case Coin =>
+                    m match {
+                        case Machine(_, ca, co) => Machine(false, ca, co+1) // coin unlocks the machine
+                    }
+                case Turn => 
+                    m match {
+                        case Machine(false, ca, co) if ca > 0 => Machine(true, ca-1, co)// turning an unlocked machine with candy returns a candy and locks it
+                        case _ => m
+                    }
+            })
+        
+        State(_ => ((machine.coins, machine.candies), machine))
+    }
+}
+
+val machine = Machine(true, 5, 10)
+val (a, b) = machine.simulateMachine(List(Coin, Turn, Coin, Turn, Coin, Turn, Coin, Turn)).run(machine)
+a
+b
