@@ -41,12 +41,12 @@ case class Machine(locked: Boolean, candies: Int, coins: Int)
 object Machine {
     def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] = {
         State(m => {
-            val machine = inputs.foldLeft(m)((m, input) => 
+            val machine = inputs.foldLeft(m)((acc, input) => 
                 input match {
-                    case Coin => Machine(false, m.candies, m.coins+1)
-                    case Turn => Machine(true, (m.candies - 1).max(0), m.coins)
+                    case Coin => Machine(false, acc.candies, acc.coins+1)
+                    case Turn => Machine(true, (acc.candies - 1).max(0), acc.coins)
                 })
-            
+
             ((machine.coins, machine.candies), machine)
         })
     }
