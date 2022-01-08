@@ -40,15 +40,8 @@ case class Machine(locked: Boolean, candies: Int, coins: Int) {
     def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] = {
         val machine = inputs.foldLeft(this)((m, input) => 
             input match {
-                case Coin =>
-                    m match {
-                        case Machine(_, ca, co) => Machine(false, ca, co+1) // coin unlocks the machine
-                    }
-                case Turn => 
-                    m match {
-                        case Machine(false, ca, co) if ca > 0 => Machine(true, ca-1, co)// turning an unlocked machine with candy returns a candy and locks it
-                        case _ => m
-                    }
+                case Coin => Machine(false, m.candies, m.coins+1)
+                case Turn => Machine(true, (m.candies - 1).max(0), m.coins)
             })
         
         State(_ => ((machine.coins, machine.candies), machine))
